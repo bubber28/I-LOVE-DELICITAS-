@@ -265,6 +265,26 @@ export function CadastroPage() {
   );
 }
 
+export function AdminLoginPage() {
+  return (
+    <section className="mx-auto max-w-lg space-y-6">
+      <PageIntro title="Admin Login" description="Acesso administrativo (stub temporario)." />
+      <Card>
+        <CardContent className="space-y-3 pt-6">
+          <Input placeholder="Email" type="email" />
+          <Input placeholder="Senha" type="password" />
+          <Button className="w-full" type="button">
+            Entrar no admin
+          </Button>
+          <p className="text-sm text-choco-700/80">
+            Autenticacao admin ainda nao configurada. Conectaremos com Supabase Auth/Backend em seguida.
+          </p>
+        </CardContent>
+      </Card>
+    </section>
+  );
+}
+
 function AdminPage({ title, description }: { title: string; description: string }) {
   return (
     <section className="space-y-6">

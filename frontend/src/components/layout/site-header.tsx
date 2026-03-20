@@ -27,8 +27,8 @@ export function SiteHeader({ links }: SiteHeaderProps) {
             D
           </div>
           <div>
-            <p className="text-lg font-semibold tracking-tight text-choco-700">Deliciosas</p>
-            <p className="text-xs text-choco-700/70">Doces artesanais e afeto em cada fatia</p>
+            <p className="text-lg font-semibold tracking-tight text-choco-700">I Love Delicitas</p>
+            <p className="text-xs text-choco-700/70">Salgados e delícias com amor</p>
           </div>
         </div>
 
