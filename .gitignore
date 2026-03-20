@@ -1,0 +1,14 @@
+
+# env
+.env
+.env.*
+
+# deps
+node_modules/
+frontend/node_modules/
+
+# build
+frontend/dist/
+
+# TS build cache
+*.tsbuildinfo

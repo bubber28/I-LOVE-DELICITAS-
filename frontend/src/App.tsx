@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react';
+import { supabase } from './lib/supabase';
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { PageContainer } from './components/layout/page-container';
 import { SiteFooter } from './components/layout/site-footer';
@@ -41,13 +43,50 @@ const headerLinks = [
 
 function RequireAdmin({ children }: { children: JSX.Element }) {
   const location = useLocation();
+  const [loading, setLoading] = useState(true);
+  const [allowed, setAllowed] = useState(false);
 
-  // Stub temporario: ate conectar auth real, nenhuma sessao admin e considerada autenticada.
-  const isAdminAuthenticated = false;
+  useEffect(() => {
+    let mounted = true;
 
-  if (!isAdminAuthenticated) {
+    async function check() {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const session = sessionData.session;
+
+      if (!mounted) return;
+
+      // Sem sessão = não logado
+      if (!session) {
+        setAllowed(false);
+        setLoading(false);
+        return;
+      }
+
+      // Com sessão, pergunta ao backend se é admin
+      const { data, error } = await supabase.rpc('is_admin');
+
+      if (!mounted) return;
+
+      setAllowed(!error && data === true);
+      setLoading(false);
+    }
+
+    check();
+
+    const { data: sub } = supabase.auth.onAuthStateChange(() => {
+      check();
+    });
+
+    return () => {
+      mounted = false;
+      sub.subscription.unsubscribe();
+    };
+  }, []);
+
+  if (loading) return null;
+
+  if (!allowed) {
     const redirectTo = `${location.pathname}${location.search}`;
-
     return <Navigate to="/admin/login" replace state={{ redirectTo }} />;
   }
 
