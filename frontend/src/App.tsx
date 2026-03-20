@@ -1,4 +1,7 @@
-import { Link, Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
+import { PageContainer } from './components/layout/page-container';
+import { SiteFooter } from './components/layout/site-footer';
+import { SiteHeader } from './components/layout/site-header';
 import {
   AdminCategoriasPage,
   AdminCuponsPage,
@@ -31,21 +34,10 @@ const links = [
 
 function App() {
   return (
-    <div className="app-shell">
-      <header>
-        <h1>Delicitas</h1>
-        <p>Monorepo com frontend e backend prontos para deploy.</p>
-      </header>
-
-      <nav>
-        {links.map(([to, label]) => (
-          <Link key={to} to={to} className="nav-link">
-            {label}
-          </Link>
-        ))}
-      </nav>
-
+    <div className="min-h-screen bg-cream-50 bg-sprinkles text-choco-700">
+      <SiteHeader links={links.map(([to, label]) => ({ to, label }))} />
       <main>
+        <PageContainer>
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/catalogo" element={<CatalogoPage />} />
@@ -65,7 +57,9 @@ function App() {
 
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+        </PageContainer>
       </main>
+      <SiteFooter />
     </div>
   );
 }
