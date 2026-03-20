@@ -66,6 +66,9 @@ export function SiteHeader({ links }: SiteHeaderProps) {
               <DropdownMenuItem asChild>
                 <Link to="/perfil">Meu perfil</Link>
               </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/admin/login">Área do admin</Link>
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
