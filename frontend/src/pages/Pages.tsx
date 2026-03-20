@@ -328,28 +328,48 @@ export function AdminLoginPage() {
   );
 }
 
+const adminNavItems = [
+  { label: 'Pedidos', path: '/admin/pedidos' },
+  { label: 'Produtos', path: '/admin/produtos' },
+  { label: 'Relatórios', path: '/admin/relatorios' }
+] as const;
+
+function AdminNav() {
+  const location = useLocation();
+  
+  return (
+    <Card>
+      <CardContent className="space-y-2 pt-6">
+        <Badge className="w-fit" variant="accent">
+          Admin
+        </Badge>
+        <p className="text-sm text-choco-700/80">Navegação de módulos.</p>
+        <div className="space-y-2">
+          {adminNavItems.map((item) => {
+            const isActive = location.pathname === item.path;
+            return (
+              <Button
+                key={item.path}
+                asChild
+                variant={isActive ? 'accent' : 'secondary'}
+                className="w-full justify-start"
+              >
+                <Link to={item.path}>{item.label}</Link>
+              </Button>
+            );
+          })}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 function AdminPage({ title, description }: { title: string; description: string }) {
   return (
     <section className="space-y-6">
       <PageIntro title={title} description={description} />
       <div className="grid gap-4 lg:grid-cols-[220px_1fr]">
-        <Card>
-          <CardContent className="space-y-2 pt-6">
-            <Badge className="w-fit" variant="accent">
-              Admin
-            </Badge>
-            <p className="text-sm text-choco-700/80">Visao lateral de modulos.</p>
-            <Button variant="secondary" className="w-full justify-start">
-              Pedidos
-            </Button>
-            <Button variant="secondary" className="w-full justify-start">
-              Produtos
-            </Button>
-            <Button variant="secondary" className="w-full justify-start">
-              Relatorios
-            </Button>
-          </CardContent>
-        </Card>
+        <AdminNav />
 
         <Card>
           <CardHeader>
