@@ -8,6 +8,8 @@ import {
   DropdownMenuTrigger
 } from '../ui/dropdown-menu';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '../ui/sheet';
+import { useEffect, useState } from 'react';
+import { getAppConfig } from '../../lib/app_config';
 
 type HeaderLink = {
   to: string;
@@ -19,17 +21,32 @@ interface SiteHeaderProps {
 }
 
 export function SiteHeader({ links }: SiteHeaderProps) {
+  const [config, setConfig] = useState<any>(null);
+  useEffect(() => {
+    getAppConfig().then(setConfig);
+  }, []);
   return (
     <header className="sticky top-0 z-30 border-b border-choco-500/10 bg-cream-50/90 backdrop-blur">
       <div className="mx-auto flex h-20 w-full max-w-6xl items-center justify-between px-4 sm:px-6">
         <div className="flex items-center gap-3">
-          <div className="grid h-10 w-10 place-content-center rounded-xl bg-gradient-to-br from-blush-200 to-cream-200 text-lg font-bold text-choco-700">
-            D
-          </div>
-          <div>
-            <p className="text-lg font-semibold tracking-tight text-choco-700">I Love Delicitas</p>
-            <p className="text-xs text-choco-700/70">Salgados e delícias com amor</p>
-          </div>
+          <Link to="/" className="flex items-center gap-2 group">
+            {config?.logo_image_url ? (
+              <img
+                src={config.logo_image_url}
+                alt="Logo"
+                style={{ height: 40, width: 'auto', maxHeight: 60 }}
+                className="block max-h-14 max-w-[180px] object-contain"
+              />
+            ) : (
+              <div className="grid h-10 w-10 place-content-center rounded-xl bg-gradient-to-br from-blush-200 to-cream-200 text-lg font-bold text-choco-700">
+                {config?.logo_text?.[0] || 'D'}
+              </div>
+            )}
+            <div>
+              <p className="text-lg font-semibold tracking-tight text-choco-700">{config?.logo_text || 'I Love Delicitas'}</p>
+              <p className="text-xs text-choco-700/70">Salgados e delícias com amor</p>
+            </div>
+          </Link>
         </div>
 
         <nav className="hidden items-center gap-1 lg:flex">
@@ -72,7 +89,7 @@ export function SiteHeader({ links }: SiteHeaderProps) {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <Button asChild variant="accent" size="sm">
+          <Button asChild variant="default" size="sm">
             <Link to="/carrinho" className="gap-2">
               <ShoppingBag className="h-4 w-4" />
               Carrinho
