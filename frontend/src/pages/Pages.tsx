@@ -364,54 +364,134 @@ function AdminNav() {
   );
 }
 
-function AdminPage({ title, description }: { title: string; description: string }) {
+interface AdminPageConfig {
+  title: string;
+  description: string;
+  actions?: { label: string; disabled?: boolean }[];
+  contentStatus: string;
+}
+
+const adminPageConfigs: Record<string, AdminPageConfig> = {
+  '/admin/dashboard': {
+    title: 'Admin Dashboard',
+    description: 'Visão geral da operação.',
+    actions: [],
+    contentStatus: 'Métricas e resumo em desenvolvimento'
+  },
+  '/admin/pedidos': {
+    title: 'Admin Pedidos',
+    description: 'Gestão de pedidos da loja.',
+    actions: [{ label: 'Novo pedido', disabled: true }],
+    contentStatus: 'Integração com banco de dados em breve'
+  },
+  '/admin/produtos': {
+    title: 'Admin Produtos',
+    description: 'Cadastro e estoque de produtos.',
+    actions: [{ label: 'Novo produto', disabled: true }],
+    contentStatus: 'Funcionalidade em breve'
+  },
+  '/admin/categorias': {
+    title: 'Admin Categorias',
+    description: 'Organização do catálogo.',
+    actions: [{ label: 'Nova categoria', disabled: true }],
+    contentStatus: 'Funcionalidade em breve'
+  },
+  '/admin/cupons': {
+    title: 'Admin Cupons',
+    description: 'Regras promocionais e descontos.',
+    actions: [{ label: 'Novo cupom', disabled: true }],
+    contentStatus: 'Funcionalidade em breve'
+  },
+  '/admin/relatorios': {
+    title: 'Admin Relatórios',
+    description: 'Indicadores de vendas e performance.',
+    actions: [],
+    contentStatus: 'Relatórios em desenvolvimento'
+  }
+};
+
+function AdminPage() {
+  const location = useLocation();
+  const config = adminPageConfigs[location.pathname] || {
+    title: 'Admin',
+    description: 'Página administrativa.',
+    actions: [],
+    contentStatus: 'Página em carregamento'
+  };
+
   return (
     <section className="space-y-6">
-      <PageIntro title={title} description={description} />
+      <PageIntro title={config.title} description={config.description} />
       <div className="grid gap-4 lg:grid-cols-[220px_1fr]">
         <AdminNav />
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Painel</CardTitle>
-            <CardDescription>Tabela em formato card, mantendo o fluxo atual.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <div className="rounded-xl border border-choco-500/10 p-3 text-sm">
-              <p className="font-medium">Registro 01</p>
-              <p className="text-choco-700/70">Status: ativo</p>
-            </div>
-            <div className="rounded-xl border border-choco-500/10 p-3 text-sm">
-              <p className="font-medium">Registro 02</p>
-              <p className="text-choco-700/70">Status: revisao</p>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="space-y-4">
+          {config.actions && config.actions.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Ações</CardTitle>
+              </CardHeader>
+              <CardContent className="flex flex-wrap gap-2">
+                {config.actions.map((action) => (
+                  <Button
+                    key={action.label}
+                    disabled={action.disabled}
+                    title={action.disabled ? 'Funcionalidade em breve' : ''}
+                  >
+                    {action.label}
+                  </Button>
+                ))}
+              </CardContent>
+            </Card>
+          )}
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Painel</CardTitle>
+              <CardDescription>{config.contentStatus}</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <div className="rounded-xl border border-choco-500/20 bg-choco-50/30 p-4 text-sm">
+                <p className="text-choco-700/70">
+                  ℹ️ {config.contentStatus}
+                </p>
+              </div>
+              <div className="rounded-xl border border-choco-500/10 p-3 text-sm">
+                <p className="font-medium">Registro 01</p>
+                <p className="text-choco-700/70">Status: ativo</p>
+              </div>
+              <div className="rounded-xl border border-choco-500/10 p-3 text-sm">
+                <p className="font-medium">Registro 02</p>
+                <p className="text-choco-700/70">Status: revisao</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </section>
   );
 }
 
 export function AdminDashboardPage() {
-  return <AdminPage title="Admin Dashboard" description="Visao geral da operacao." />;
+  return <AdminPage />;
 }
 
 export function AdminPedidosPage() {
-  return <AdminPage title="Admin Pedidos" description="Gestao de pedidos da loja." />;
+  return <AdminPage />;
 }
 
 export function AdminProdutosPage() {
-  return <AdminPage title="Admin Produtos" description="Cadastro e estoque de produtos." />;
+  return <AdminPage />;
 }
 
 export function AdminCategoriasPage() {
-  return <AdminPage title="Admin Categorias" description="Organizacao do catalogo." />;
+  return <AdminPage />;
 }
 
 export function AdminCuponsPage() {
-  return <AdminPage title="Admin Cupons" description="Regras promocionais e descontos." />;
+  return <AdminPage />;
 }
 
 export function AdminRelatoriosPage() {
-  return <AdminPage title="Admin Relatorios" description="Indicadores de vendas e performance." />;
+  return <AdminPage />;
 }
