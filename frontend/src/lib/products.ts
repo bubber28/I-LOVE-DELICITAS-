@@ -1,32 +1,52 @@
-import { supabase } from './supabase';
-export type Product = {
-  id: string;
-  nome: string;
-  preco: number;
-  categoria?: string;
-  descricao?: string;
-  imagem?: string;
-};
+import { supabase } from './supabase'
 
-export async function fetchProducts() {
-  const { data, error } = await supabase.from('products').select('*');
-  if (error) throw error;
-  return data as Product[];
+export interface Product {
+  id: string
+  name: string
+  description: string
+  price_cents: number
+  stock: number
+  active: boolean
+  image_url?: string
+  category_id?: string
+  cores?: string[]
+  tamanhos?: string[]
+}
+
+export async function getProducts() {
+  const { data, error } = await supabase
+    .from('products')
+    .select('*')
+    .eq('active', true)
+  if (error) throw error
+  return data as Product[]
 }
 
 export async function createProduct(product: Omit<Product, 'id'>) {
-  const { data, error } = await supabase.from('products').insert([product]).select();
-  if (error) throw error;
-  return data?.[0] as Product;
+  const { data, error } = await supabase
+    .from('products')
+    .insert(product)
+    .select()
+    .single()
+  if (error) throw error
+  return data as Product
 }
 
 export async function updateProduct(id: string, updates: Partial<Product>) {
-  const { data, error } = await supabase.from('products').update(updates).eq('id', id).select();
-  if (error) throw error;
-  return data?.[0] as Product;
+  const { data, error } = await supabase
+    .from('products')
+    .update(updates)
+    .eq('id', id)
+    .select()
+    .single()
+  if (error) throw error
+  return data as Product
 }
 
 export async function deleteProduct(id: string) {
-  const { error } = await supabase.from('products').delete().eq('id', id);
-  if (error) throw error;
+  const { error } = await supabase
+    .from('products')
+    .delete()
+    .eq('id', id)
+  if (error) throw error
 }

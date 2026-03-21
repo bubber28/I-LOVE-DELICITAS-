@@ -1,20 +1,11 @@
 export function SiteFooter() {
   return (
-    <footer className="border-t border-choco-500/10 bg-cream-100/70">
-      <div className="mx-auto grid w-full max-w-6xl gap-4 px-4 py-8 text-sm text-choco-700 sm:grid-cols-3 sm:px-6">
-        <div>
-          <p className="font-semibold">Deliciosas</p>
-          <p className="text-choco-700/75">Confeitaria de bairro com entrega rapida e sabor memoravel.</p>
-        </div>
-        <div>
-          <p className="font-semibold">Horario</p>
-          <p className="text-choco-700/75">Seg a Sab: 08h as 20h</p>
-        </div>
-        <div>
-          <p className="font-semibold">Contato</p>
-          <p className="text-choco-700/75">WhatsApp: (11) 90000-0000</p>
-        </div>
+    <footer className="border-t py-6 md:py-0">
+      <div className="container mx-auto flex flex-col items-center justify-between gap-4 md:h-16 md:flex-row px-4">
+        <p className="text-sm text-muted-foreground">
+          © {new Date().getFullYear()} I Love Delicitas. Todos os direitos reservados.
+        </p>
       </div>
     </footer>
-  );
+  )
 }

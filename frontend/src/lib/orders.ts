@@ -1,59 +1,26 @@
-export type OrderItem = {
-  id: string;
-  title: string;
-  price: number;
-  qty: number;
-};
-
-export type Order = {
-  id: string;
-  createdAt: string; // ISO
-  total: number;
-  items: OrderItem[];
-  metadata?: Record<string, any>;
-};
-
-const STORAGE_KEY = 'orders';
+export interface Order {
+  id: string
+  items: any[]
+  total: number
+  status: string
+  created_at: string
+  customer_name?: string
+  customer_phone?: string
+}
 
 export function getOrders(): Order[] {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as Order[]) : [];
-  } catch (err) {
-    console.error('getOrders: parse error', err);
-    return [];
-  }
+  const orders = localStorage.getItem('orders')
+  return orders ? JSON.parse(orders) : []
 }
 
-export function saveOrders(orders: Order[]) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(orders));
-  } catch (err) {
-    console.error('saveOrders: write error', err);
+export function createOrder(order: Omit<Order, 'id' | 'created_at'>) {
+  const orders = getOrders()
+  const newOrder: Order = {
+    ...order,
+    id: Date.now().toString(),
+    created_at: new Date().toISOString(),
   }
-}
-
-/**
-Add an order and return the new orders array.
-New orders are prepended so newest appear first. */
-export function addOrder(order: Order): Order[] {
-  const orders = getOrders();
-  orders.unshift(order);
-  saveOrders(orders);
-  return orders;
-}
-/** Remove an order by id */
-export function removeOrder(orderId: string): Order[] {
-  const orders = getOrders().filter((o) => o.id !== orderId);
-  saveOrders(orders);
-  return orders;
-}
-
-/** Clear all stored orders (dev helper) */
-export function clearOrders() {
-  try {
-    localStorage.removeItem(STORAGE_KEY);
-  } catch (err) {
-    console.error('clearOrders error', err);
-  }
+  orders.push(newOrder)
+  localStorage.setItem('orders', JSON.stringify(orders))
+  return newOrder
 }

@@ -1,51 +1,48 @@
-// Utilitário simples de carrinho usando localStorage
-
-export type CartProduct = {
-  id: string;
-  nome: string;
-  preco: number;
-  qty: number;
-};
-
-const CART_KEY = 'cart';
-
-export function getCart(): CartProduct[] {
-  try {
-    const raw = localStorage.getItem(CART_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
+export interface CartItem {
+  id: string
+  name: string
+  price: number
+  quantity: number
+  image_url?: string
+  cores?: string[]
+  tamanhos?: string[]
 }
 
-export function setCart(cart: CartProduct[]) {
-  localStorage.setItem(CART_KEY, JSON.stringify(cart));
+export function getCart(): CartItem[] {
+  const cart = localStorage.getItem('cart')
+  return cart ? JSON.parse(cart) : []
 }
 
-export function addToCart(product: Omit<CartProduct, 'qty'>) {
-  const cart = getCart();
-  const idx = cart.findIndex(p => p.id === product.id);
-  if (idx >= 0) {
-    cart[idx].qty += 1;
+export function addToCart(item: CartItem) {
+  const cart = getCart()
+  const existing = cart.find(i => i.id === item.id)
+  if (existing) {
+    existing.quantity += item.quantity
   } else {
-    cart.push({ ...product, qty: 1 });
+    cart.push(item)
   }
-  setCart(cart);
+  localStorage.setItem('cart', JSON.stringify(cart))
 }
 
-export function removeFromCart(productId: string) {
-  const cart = getCart().filter(p => p.id !== productId);
-  setCart(cart);
+export function updateCartItemQuantity(id: string, quantity: number) {
+  const cart = getCart()
+  const item = cart.find(i => i.id === id)
+  if (item) {
+    item.quantity = quantity
+    if (item.quantity <= 0) {
+      removeFromCart(id)
+    } else {
+      localStorage.setItem('cart', JSON.stringify(cart))
+    }
+  }
 }
 
-export function updateQty(productId: string, qty: number) {
-  if (qty < 1) return;
-  const cart = getCart().map(p =>
-    p.id === productId ? { ...p, qty } : p
-  );
-  setCart(cart);
+export function removeFromCart(id: string) {
+  const cart = getCart()
+  const newCart = cart.filter(i => i.id !== id)
+  localStorage.setItem('cart', JSON.stringify(newCart))
 }
 
 export function clearCart() {
-  setCart([]);
+  localStorage.removeItem('cart')
 }

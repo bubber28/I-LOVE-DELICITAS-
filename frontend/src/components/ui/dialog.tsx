@@ -1,9 +1,7 @@
 import * as React from "react"
 import { cn } from "../../lib/utils"
 
-export interface DialogProps extends React.HTMLAttributes<HTMLDivElement> {}
-
-const Dialog = React.forwardRef<HTMLDivElement, DialogProps>(
+const Dialog = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
     <div ref={ref} className={cn("fixed inset-0 z-50 flex items-center justify-center bg-black/40", className)} {...props} />
   )
@@ -12,7 +10,7 @@ Dialog.displayName = "Dialog"
 
 const DialogContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
-    <div ref={ref} className={cn("bg-white p-6 rounded shadow w-full max-w-md space-y-3", className)} {...props} />
+    <div ref={ref} className={cn("bg-white p-6 rounded shadow w-full max-w-md", className)} {...props} />
   )
 )
 DialogContent.displayName = "DialogContent"
@@ -26,7 +24,7 @@ DialogHeader.displayName = "DialogHeader"
 
 const DialogTitle = React.forwardRef<HTMLHeadingElement, React.HTMLAttributes<HTMLHeadingElement>>(
   ({ className, ...props }, ref) => (
-    <h2 ref={ref} className={cn("text-lg font-bold mb-2", className)} {...props} />
+    <h2 ref={ref} className={cn("text-lg font-bold", className)} {...props} />
   )
 )
 DialogTitle.displayName = "DialogTitle"
@@ -40,7 +38,7 @@ DialogDescription.displayName = "DialogDescription"
 
 const DialogFooter = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
-    <div ref={ref} className={cn("flex gap-2 mt-2", className)} {...props} />
+    <div ref={ref} className={cn("flex gap-2 mt-4", className)} {...props} />
   )
 )
 DialogFooter.displayName = "DialogFooter"

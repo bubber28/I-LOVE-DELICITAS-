@@ -1,172 +1,68 @@
-import { useEffect, useState } from 'react';
-import { supabase } from './lib/supabase';
-import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
-import { PageContainer } from './components/layout/page-container';
-import { SiteFooter } from './components/layout/site-footer';
-import { SiteHeader } from './components/layout/site-header';
+
+
+
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { SiteHeader } from './components/layout/site-header'
+import { SiteFooter } from './components/layout/site-footer'
+import { AuthProvider } from './contexts/AuthContext'
+import { RequireAdmin } from './components/auth/RequireAdmin'
 import {
-  AdminCategoriasPage,
-  AdminCuponsPage,
-  AdminDashboardPage,
-  AdminLoginPage,
-  AdminPedidosPage,
-  AdminProdutosPage,
-  AdminRelatoriosPage,
+  HomePage,
   CatalogoPage,
-  CadastroPage,
   CarrinhoPage,
   CheckoutPage,
-  HomePage,
-  LoginPage,
   PedidosPage,
-  PerfilPage
-} from './pages/Pages';
+  PerfilPage,
+  LoginPage,
+  CadastroPage,
+  AdminLoginPage,
+  AdminDashboardPage,
+  AdminPedidosPage,
+  AdminProdutosPage,
+  AdminCategoriasPage,
+  AdminCuponsPage,
+  AdminRelatoriosPage,
+  AdminConfiguracoesPage,
+} from './pages/Pages'
+
 
 const links = [
-  ['/', 'Home'],
-  ['/catalogo', 'Catalogo'],
-  ['/carrinho', 'Carrinho'],
-  ['/checkout', 'Checkout'],
-  ['/pedidos', 'Pedidos'],
-  ['/perfil', 'Perfil'],
-  ['/login', 'Login'],
-  ['/cadastro', 'Cadastro'],
-  ['/admin/dashboard', 'Admin Dashboard'],
-  ['/admin/pedidos', 'Admin Pedidos']
-] as const;
+  { to: '/catalogo', label: 'Catálogo' },
+  { to: '/carrinho', label: 'Carrinho' },
+  { to: '/pedidos', label: 'Pedidos' },
+  { to: '/perfil', label: 'Perfil' },
+]
 
-const headerLinks = [
-  ['/', 'Home'],
-  ['/catalogo', 'Catalogo'],
-  ['/pedidos', 'Meus pedidos']
-] as const;
-
-function RequireAdmin({ children }: { children: JSX.Element }) {
-  const location = useLocation();
-  const [loading, setLoading] = useState(true);
-  const [allowed, setAllowed] = useState(false);
-
-  useEffect(() => {
-    let mounted = true;
-
-    async function check() {
-      const { data: sessionData } = await supabase.auth.getSession();
-      const session = sessionData.session;
-
-      if (!mounted) return;
-
-      // Sem sessão = não logado
-      if (!session) {
-        setAllowed(false);
-        setLoading(false);
-        return;
-      }
-
-      // Com sessão, pergunta ao backend se é admin
-      const { data, error } = await supabase.rpc('is_admin');
-
-      if (!mounted) return;
-
-      setAllowed(!error && data === true);
-      setLoading(false);
-    }
-
-    check();
-
-    const { data: sub } = supabase.auth.onAuthStateChange(() => {
-      check();
-    });
-
-    return () => {
-      mounted = false;
-      sub.subscription.unsubscribe();
-    };
-  }, []);
-
-  if (loading) return null;
-
-  if (!allowed) {
-    const redirectTo = `${location.pathname}${location.search}`;
-    return <Navigate to="/admin/login" replace state={{ redirectTo }} />;
-  }
-
-  return children;
-}
-
-function App() {
+export function App() {
   return (
-    <div className="min-h-screen bg-cream-50 bg-sprinkles text-choco-700">
-      <SiteHeader links={headerLinks.map(([to, label]) => ({ to, label }))} />
-      <main>
-        <PageContainer>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/catalogo" element={<CatalogoPage />} />
-          <Route path="/carrinho" element={<CarrinhoPage />} />
-          <Route path="/checkout" element={<CheckoutPage />} />
-          <Route path="/pedidos" element={<PedidosPage />} />
-          <Route path="/perfil" element={<PerfilPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/cadastro" element={<CadastroPage />} />
-
-          <Route path="/admin/login" element={<AdminLoginPage />} />
-
-          <Route
-            path="/admin/dashboard"
-            element={
-              <RequireAdmin>
-                <AdminDashboardPage />
-              </RequireAdmin>
-            }
-          />
-          <Route
-            path="/admin/pedidos"
-            element={
-              <RequireAdmin>
-                <AdminPedidosPage />
-              </RequireAdmin>
-            }
-          />
-          <Route
-            path="/admin/produtos"
-            element={
-              <RequireAdmin>
-                <AdminProdutosPage />
-              </RequireAdmin>
-            }
-          />
-          <Route
-            path="/admin/categorias"
-            element={
-              <RequireAdmin>
-                <AdminCategoriasPage />
-              </RequireAdmin>
-            }
-          />
-          <Route
-            path="/admin/cupons"
-            element={
-              <RequireAdmin>
-                <AdminCuponsPage />
-              </RequireAdmin>
-            }
-          />
-          <Route
-            path="/admin/relatorios"
-            element={
-              <RequireAdmin>
-                <AdminRelatoriosPage />
-              </RequireAdmin>
-            }
-          />
-
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-        </PageContainer>
-      </main>
-      <SiteFooter />
-    </div>
-  );
+    <AuthProvider>
+      <BrowserRouter>
+        <div className="flex min-h-screen flex-col">
+          <SiteHeader links={links} />
+          <main className="flex-1">
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/catalogo" element={<CatalogoPage />} />
+              <Route path="/carrinho" element={<CarrinhoPage />} />
+              <Route path="/checkout" element={<CheckoutPage />} />
+              <Route path="/pedidos" element={<PedidosPage />} />
+              <Route path="/perfil" element={<PerfilPage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/cadastro" element={<CadastroPage />} />
+              <Route path="/admin/login" element={<AdminLoginPage />} />
+              <Route path="/admin/dashboard" element={<RequireAdmin><AdminDashboardPage /></RequireAdmin>} />
+              <Route path="/admin/pedidos" element={<RequireAdmin><AdminPedidosPage /></RequireAdmin>} />
+              <Route path="/admin/produtos" element={<RequireAdmin><AdminProdutosPage /></RequireAdmin>} />
+              <Route path="/admin/categorias" element={<RequireAdmin><AdminCategoriasPage /></RequireAdmin>} />
+              <Route path="/admin/cupons" element={<RequireAdmin><AdminCuponsPage /></RequireAdmin>} />
+              <Route path="/admin/relatorios" element={<RequireAdmin><AdminRelatoriosPage /></RequireAdmin>} />
+              <Route path="/admin/configuracoes" element={<RequireAdmin><AdminConfiguracoesPage /></RequireAdmin>} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </main>
+          <SiteFooter />
+        </div>
+      </BrowserRouter>
+    </AuthProvider>
+  )
 }
-
-export default App;
