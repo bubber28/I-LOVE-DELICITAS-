@@ -38,10 +38,10 @@ export function HomePage() {
         </h1>
         <p className="text-lg text-muted-foreground mb-6">{config.hero_subtitle}</p>
         <div className="flex gap-4 justify-center">
-          <Button asChild>
+          <Button asChild style={{ backgroundColor: config.primary_color, color: '#fff', borderColor: config.primary_color }}>
             <Link to="/catalogo">{config.hero_button_primary}</Link>
           </Button>
-          <Button variant="outline" asChild>
+          <Button variant="outline" asChild style={{ color: config.primary_color, borderColor: config.primary_color }}>
             <Link to="/pedidos">{config.hero_button_secondary}</Link>
           </Button>
         </div>
@@ -62,7 +62,7 @@ export function HomePage() {
               </CardHeader>
               <CardContent>
                 <p className="text-lg font-bold">R$ {(product.price_cents / 100).toFixed(2)}</p>
-                <Button className="mt-2 w-full" onClick={() => addToCart({ id: product.id, name: product.name, price: product.price_cents / 100, quantity: 1 })}>
+                <Button className="mt-2 w-full" style={{ backgroundColor: config.primary_color, color: '#fff', borderColor: config.primary_color }} onClick={() => addToCart({ id: product.id, name: product.name, price: product.price_cents / 100, quantity: 1 })}>
                   Adicionar ao Carrinho
                 </Button>
               </CardContent>

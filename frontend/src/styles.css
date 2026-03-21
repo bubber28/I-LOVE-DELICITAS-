@@ -1,3 +1,9 @@
+/* Variáveis globais de cor */
+:root {
+  --primary: #FF6B6B;
+  --secondary: #4ECDC4;
+  --accent: #FFE66D;
+}
 /* styles.css gerado automaticamente para build Vite */
 body {
   font-family: system-ui, sans-serif;

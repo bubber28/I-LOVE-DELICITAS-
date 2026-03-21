@@ -1,3 +1,5 @@
+import { useEffect } from 'react'
+import { getAppConfig } from './lib/app_config'
 
 
 
@@ -34,6 +36,16 @@ const links = [
 ]
 
 export function App() {
+  useEffect(() => {
+    getAppConfig().then(config => {
+      if (config) {
+        const root = document.documentElement;
+        if (config.primary_color) root.style.setProperty('--primary', config.primary_color);
+        if (config.secondary_color) root.style.setProperty('--secondary', config.secondary_color);
+        if (config.accent_color) root.style.setProperty('--accent', config.accent_color);
+      }
+    });
+  }, []);
   return (
     <AuthProvider>
       <BrowserRouter>
