@@ -466,6 +466,20 @@ function AdminPage() {
               </div>
             </CardContent>
           </Card>
+
+          {location.pathname === '/admin/dashboard' && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Configurações (Em breve)</CardTitle>
+                <CardDescription>Personalizações do app</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <Button disabled title="Funcionalidade em breve" className="w-full">
+                  🎨 Tema / Cores (Em breve)
+                </Button>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
     </section>
