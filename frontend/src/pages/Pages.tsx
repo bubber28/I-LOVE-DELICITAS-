@@ -1,6 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { addToCart } from '../lib/cart';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import { getCart, updateQty, removeFromCart, clearCart, CartProduct } from '../lib/cart';
 import { Badge } from '../components/ui/badge';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
@@ -73,12 +75,22 @@ export function HomePage() {
 
 export function CatalogoPage() {
   const categories = ['Todos', 'Bolos', 'Tortas', 'Doces Finos', 'Combos'];
-  const products = [
-    'Bolo Red Velvet',
-    'Cheesecake de Frutas Vermelhas',
-    'Mini Churros Gourmet',
-    'Kit Festa para 6 pessoas'
+  // Mock explícito de produtos
+  const PRODUCTS = [
+    { id: '1', nome: 'Bolo Red Velvet', preco: 39.9 },
+    { id: '2', nome: 'Cheesecake de Frutas Vermelhas', preco: 42.5 },
+    { id: '3', nome: 'Mini Churros Gourmet', preco: 29.9 },
+    { id: '4', nome: 'Kit Festa para 6 pessoas', preco: 119.0 },
+    { id: '5', nome: 'Torta Banoffee', preco: 44.0 },
+    { id: '6', nome: 'Caixa Brigadeiros Sortidos', preco: 35.0 },
   ];
+  const [addedId, setAddedId] = useState<string | null>(null);
+
+  function handleAdd(product: typeof PRODUCTS[number]) {
+    addToCart(product);
+    setAddedId(product.id);
+    setTimeout(() => setAddedId(null), 1000);
+  }
 
   return (
     <section className="space-y-6">
@@ -98,16 +110,18 @@ export function CatalogoPage() {
       </Card>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        {products.map((product) => (
-          <Card key={product}>
+        {PRODUCTS.map((product) => (
+          <Card key={product.id}>
             <div className="h-40 rounded-t-2xl bg-gradient-to-br from-cream-200 to-blush-100" />
             <CardHeader>
-              <CardTitle className="text-lg">{product}</CardTitle>
+              <CardTitle className="text-lg">{product.nome}</CardTitle>
               <CardDescription>Imagem placeholder e descricao promocional.</CardDescription>
             </CardHeader>
             <CardContent className="flex items-center justify-between">
-              <p className="font-semibold text-choco-700">R$ 39,90</p>
-              <Button size="sm">Adicionar</Button>
+              <p className="font-semibold text-choco-700">R$ {product.preco.toFixed(2)}</p>
+              <Button size="sm" onClick={() => handleAdd(product)} disabled={addedId === product.id}>
+                {addedId === product.id ? 'Adicionado!' : 'Adicionar'}
+              </Button>
             </CardContent>
           </Card>
         ))}
@@ -117,6 +131,24 @@ export function CatalogoPage() {
 }
 
 export function CarrinhoPage() {
+  const [cart, setCart] = useState<CartProduct[]>([]);
+
+  useEffect(() => {
+    setCart(getCart());
+  }, []);
+
+  function handleQty(id: string, qty: number) {
+    updateQty(id, qty);
+    setCart(getCart());
+  }
+
+  function handleRemove(id: string) {
+    removeFromCart(id);
+    setCart(getCart());
+  }
+
+  const total = cart.reduce((sum, p) => sum + p.preco * p.qty, 0);
+
   return (
     <section className="space-y-6">
       <PageIntro title="Carrinho" description="Resumo dos itens selecionados." />
@@ -126,29 +158,41 @@ export function CarrinhoPage() {
           <CardDescription>Confira antes de finalizar.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex items-center justify-between text-sm">
-            <span>2x Caixa Mini Brownies</span>
-            <span>R$ 49,80</span>
-          </div>
-          <Separator />
-          <div className="flex items-center justify-between text-sm">
-            <span>1x Bolo de Cenoura Premium</span>
-            <span>R$ 32,90</span>
-          </div>
-          <Separator />
-          <div className="flex items-center justify-between font-semibold">
-            <span>Total</span>
-            <span>R$ 82,70</span>
-          </div>
-          <Button asChild className="w-full">
-            <Link to="/checkout">Ir para checkout</Link>
-          </Button>
+          {cart.length === 0 && <div className="text-choco-700/70">Seu carrinho está vazio.</div>}
+          {cart.map((item) => (
+            <div key={item.id} className="flex items-center justify-between gap-2 text-sm">
+              <span>{item.qty}x {item.nome}</span>
+              <span>R$ {(item.preco * item.qty).toFixed(2)}</span>
+              <div className="flex items-center gap-1">
+                <Button size="sm" variant="secondary" onClick={() => handleQty(item.id, item.qty - 1)} disabled={item.qty <= 1}>-</Button>
+                <Input
+                  type="number"
+                  min={1}
+                  value={item.qty}
+                  onChange={e => handleQty(item.id, Number(e.target.value))}
+                  className="w-12 px-1 text-center"
+                  style={{ minWidth: 0 }}
+                />
+                <Button size="sm" variant="secondary" onClick={() => handleQty(item.id, item.qty + 1)}>+</Button>
+                <Button size="sm" variant="ghost" onClick={() => handleRemove(item.id)} title="Remover">🗑️</Button>
+              </div>
+            </div>
+          ))}
+          {cart.length > 0 && <>
+            <Separator />
+            <div className="flex items-center justify-between font-semibold">
+              <span>Total</span>
+              <span>R$ {total.toFixed(2)}</span>
+            </div>
+            <Button asChild className="w-full">
+              <Link to="/checkout">Ir para checkout</Link>
+            </Button>
+          </>}
         </CardContent>
       </Card>
     </section>
   );
 }
-
 export function CheckoutPage() {
   return (
     <section className="space-y-6">
@@ -237,31 +281,129 @@ export function PerfilPage() {
 }
 
 export function LoginPage() {
+  const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [senha, setSenha] = useState('');
+  const [erro, setErro] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  async function onSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setErro(null);
+    setLoading(true);
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password: senha,
+    });
+    setLoading(false);
+    if (error) {
+      setErro('Email ou senha inválidos.');
+    } else {
+      navigate('/');
+    }
+  }
+
   return (
     <section className="mx-auto max-w-lg space-y-6">
       <PageIntro title="Login" description="Acesso de clientes e admins." />
       <Card>
-        <CardContent className="space-y-3 pt-6">
-          <Input placeholder="Email" type="email" />
-          <Input placeholder="Senha" type="password" />
-          <Button className="w-full">Entrar</Button>
-        </CardContent>
+        <form onSubmit={onSubmit}>
+          <CardContent className="space-y-3 pt-6">
+            <Input
+              placeholder="Email"
+              type="email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              required
+              autoComplete="email"
+              disabled={loading}
+            />
+            <Input
+              placeholder="Senha"
+              type="password"
+              value={senha}
+              onChange={e => setSenha(e.target.value)}
+              required
+              autoComplete="current-password"
+              disabled={loading}
+            />
+            {erro && <div className="text-red-600 text-sm">{erro}</div>}
+            <Button className="w-full" type="submit" disabled={loading}>
+              {loading ? 'Entrando...' : 'Entrar'}
+            </Button>
+          </CardContent>
+        </form>
       </Card>
     </section>
   );
 }
 
 export function CadastroPage() {
+  const navigate = useNavigate();
+  const [nome, setNome] = useState('');
+  const [email, setEmail] = useState('');
+  const [senha, setSenha] = useState('');
+  const [erro, setErro] = useState<string | null>(null);
+  const [sucesso, setSucesso] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  async function onSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setErro(null);
+    setSucesso(false);
+    setLoading(true);
+    const { error } = await supabase.auth.signUp({
+      email,
+      password: senha,
+      options: { data: { nome } }
+    });
+    setLoading(false);
+    if (error) {
+      setErro(error.message || 'Erro ao criar conta.');
+    } else {
+      setSucesso(true);
+      setTimeout(() => navigate('/'), 1500);
+    }
+  }
+
   return (
     <section className="mx-auto max-w-lg space-y-6">
       <PageIntro title="Cadastro" description="Criacao de nova conta." />
       <Card>
-        <CardContent className="space-y-3 pt-6">
-          <Input placeholder="Nome completo" />
-          <Input placeholder="Email" type="email" />
-          <Input placeholder="Senha" type="password" />
-          <Button className="w-full">Criar conta</Button>
-        </CardContent>
+        <form onSubmit={onSubmit}>
+          <CardContent className="space-y-3 pt-6">
+            <Input
+              placeholder="Nome completo"
+              value={nome}
+              onChange={e => setNome(e.target.value)}
+              required
+              disabled={loading}
+            />
+            <Input
+              placeholder="Email"
+              type="email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              required
+              autoComplete="email"
+              disabled={loading}
+            />
+            <Input
+              placeholder="Senha"
+              type="password"
+              value={senha}
+              onChange={e => setSenha(e.target.value)}
+              required
+              autoComplete="new-password"
+              disabled={loading}
+            />
+            {erro && <div className="text-red-600 text-sm">{erro}</div>}
+            {sucesso && <div className="text-green-700 text-sm">Cadastro realizado! Verifique seu email.</div>}
+            <Button className="w-full" type="submit" disabled={loading}>
+              {loading ? 'Criando...' : 'Criar conta'}
+            </Button>
+          </CardContent>
+        </form>
       </Card>
     </section>
   );
